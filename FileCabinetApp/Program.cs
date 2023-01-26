@@ -1,4 +1,7 @@
-﻿namespace FileCabinetApp
+﻿using System.Collections.Generic;
+using System.Globalization;
+
+namespace FileCabinetApp
 {
     public static class Program
     {
@@ -7,6 +10,7 @@
         private const int CommandHelpIndex = 0;
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
+        private static FileCabinetService listRecords = new ();
 
         private static bool isRunning = true;
 
@@ -15,13 +19,15 @@
             new Tuple<string, Action<string>>("help", PrintHelp),
             new Tuple<string, Action<string>>("exit", Exit),
             new Tuple<string, Action<string>>("stat", Stat),
+            new Tuple<string, Action<string>>("create", Create),
         };
 
         private static string[][] helpMessages = new string[][]
         {
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
-            new string[] { "stat", "prints statistics on records", "The 'stat' command statistics on records." },
+            new string[] { "stat", "prints statistics on records", "The 'stat' command prints statistics on records." },
+            new string[] { "create", "creates new record", "The 'create' command creates new record." },
         };
 
         public static void Main(string[] args)
@@ -100,10 +106,27 @@
 
         private static void Stat(string parameters)
         {
-            var recordsCount = new FileCabinetService().GetStat();
+            int recordsCount = listRecords.GetStat();
             Console.WriteLine($"{recordsCount} record(s).");
         }
 
+        private static void Create(string parameters)
+        {
+            Console.WriteLine("<< Insert data >>");
+            Console.Write("First name: ");
+            string? firstName = Console.ReadLine();
+            Console.Write("Last name: ");
+            string? lastName = Console.ReadLine();
+            Console.Write("Date of birth (MM/DD/YYYY): ");
+            bool isValidDate = DateTime.TryParse(Console.ReadLine(), CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
+            if (firstName == null || lastName == null || !isValidDate)
+            {
+                Console.WriteLine("Invalid data!\nInsert command again.");
+                return;
+            }
 
+            int recordNumber = listRecords.CreateRecord(firstName, lastName, dateOfBirth);
+            Console.WriteLine($"Record #{recordNumber} is created.");
+        }
     }
 }
