@@ -128,14 +128,21 @@ namespace FileCabinetApp
             Console.Write("Sex: ");
             bool isValidSex = char.TryParse(Console.ReadLine(), out char sex);
 
-            if (firstName == null || lastName == null || !(isValidDate & isValidLevel & isValidSalary & isValidSex))
+            if (firstName == null || lastName == null || !(isValidDate && isValidLevel && isValidSalary && isValidSex))
             {
-                Console.WriteLine("Invalid data!\nInsert command again.");
+                Console.WriteLine("\tInvalid data!\nInsert command 'create' again.");
                 return;
             }
 
-            int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth, acceessLevel, salary, char.ToUpper(sex, CultureInfo.InvariantCulture));
-            Console.WriteLine($"Record #{recordNumber} is created.");
+            try
+            {
+                int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth, acceessLevel, salary, char.ToUpper(sex, CultureInfo.InvariantCulture));
+                Console.WriteLine($"Record #{recordNumber} is created.");
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("\tInvalid data!\nInsert command 'create' again.");
+            }
         }
 
         private static void List(string parameters)
