@@ -10,7 +10,7 @@ namespace FileCabinetApp
         private const int CommandHelpIndex = 0;
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
-        private static FileCabinetService listRecords = new ();
+        private static readonly FileCabinetService ListRecords = new ();
 
         private static bool isRunning = true;
 
@@ -20,6 +20,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("exit", Exit),
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("create", Create),
+            new Tuple<string, Action<string>>("list", List),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -28,6 +29,7 @@ namespace FileCabinetApp
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "stat", "prints statistics on records", "The 'stat' command prints statistics on records." },
             new string[] { "create", "creates new record", "The 'create' command creates new record." },
+            new string[] { "list", "prints current list of records.", "The 'list' command prints current list of records." },
         };
 
         public static void Main(string[] args)
@@ -50,7 +52,7 @@ namespace FileCabinetApp
                     continue;
                 }
 
-                var index = Array.FindIndex(commands, 0, commands.Length, i => i.Item1.Equals(command, StringComparison.InvariantCultureIgnoreCase));
+                var index = Array.FindIndex(commands, 0, commands.Length, i => i.Item1.Equals(command, StringComparison.OrdinalIgnoreCase));
                 if (index >= 0)
                 {
                     const int parametersIndex = 1;
@@ -75,7 +77,7 @@ namespace FileCabinetApp
         {
             if (!string.IsNullOrEmpty(parameters))
             {
-                var index = Array.FindIndex(helpMessages, 0, helpMessages.Length, i => string.Equals(i[Program.CommandHelpIndex], parameters, StringComparison.InvariantCultureIgnoreCase));
+                var index = Array.FindIndex(helpMessages, 0, helpMessages.Length, i => string.Equals(i[Program.CommandHelpIndex], parameters, StringComparison.OrdinalIgnoreCase));
                 if (index >= 0)
                 {
                     Console.WriteLine(helpMessages[index][Program.ExplanationHelpIndex]);
@@ -106,7 +108,7 @@ namespace FileCabinetApp
 
         private static void Stat(string parameters)
         {
-            int recordsCount = listRecords.GetStat();
+            int recordsCount = ListRecords.GetStat();
             Console.WriteLine($"{recordsCount} record(s).");
         }
 
@@ -125,8 +127,17 @@ namespace FileCabinetApp
                 return;
             }
 
-            int recordNumber = listRecords.CreateRecord(firstName, lastName, dateOfBirth);
+            int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth);
             Console.WriteLine($"Record #{recordNumber} is created.");
+        }
+
+        private static void List(string parameters)
+        {
+            foreach (var record in ListRecords.GetRecords())
+            {
+                string date = record.DateOfBirth.ToString("yyyy-MMM-dd", CultureInfo.InvariantCulture);
+                Console.WriteLine("#{0}, {1}, {2}, {3}", record.Id, record.FirstName, record.LastName, date);
+            }
         }
     }
 }
