@@ -121,13 +121,20 @@ namespace FileCabinetApp
             string? lastName = Console.ReadLine();
             Console.Write("Date of birth (MM/DD/YYYY): ");
             bool isValidDate = DateTime.TryParse(Console.ReadLine(), CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
-            if (firstName == null || lastName == null || !isValidDate)
+            Console.Write("Access level: ");
+            bool isValidLevel = short.TryParse(Console.ReadLine(),  out short acceessLevel);
+            Console.Write("Salary($): ");
+            bool isValidSalary = decimal.TryParse(Console.ReadLine(), NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal salary);
+            Console.Write("Sex: ");
+            bool isValidSex = char.TryParse(Console.ReadLine(), out char sex);
+
+            if (firstName == null || lastName == null || !(isValidDate & isValidLevel & isValidSalary & isValidSex))
             {
                 Console.WriteLine("Invalid data!\nInsert command again.");
                 return;
             }
 
-            int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth);
+            int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth, acceessLevel, salary, sex);
             Console.WriteLine($"Record #{recordNumber} is created.");
         }
 
@@ -136,7 +143,7 @@ namespace FileCabinetApp
             foreach (var record in ListRecords.GetRecords())
             {
                 string date = record.DateOfBirth.ToString("yyyy-MMM-dd", CultureInfo.InvariantCulture);
-                Console.WriteLine("#{0}, {1}, {2}, {3}", record.Id, record.FirstName, record.LastName, date);
+                Console.WriteLine("#{0}, {1}, {2}, {5}, {3}, Level {4}, Salary {6}$", record.Id, record.FirstName, record.LastName, date, record.AccessLevel, record.Sex, record.Salary);
             }
         }
     }

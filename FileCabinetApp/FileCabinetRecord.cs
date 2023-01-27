@@ -15,5 +15,11 @@ namespace FileCabinetApp
         public string LastName { get; set; } = string.Empty;
 
         public DateTime DateOfBirth { get; set; }
+
+        public short AccessLevel { get; set; }
+
+        public decimal Salary { get; set; }
+
+        public char Sex { get; set; }
     }
 }
