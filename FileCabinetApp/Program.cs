@@ -134,7 +134,7 @@ namespace FileCabinetApp
                 return;
             }
 
-            int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth, acceessLevel, salary, sex);
+            int recordNumber = ListRecords.CreateRecord(firstName, lastName, dateOfBirth, acceessLevel, salary, char.ToUpper(sex, CultureInfo.InvariantCulture));
             Console.WriteLine($"Record #{recordNumber} is created.");
         }
 
