@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 
 namespace FileCabinetApp
 {
@@ -21,6 +22,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
+            new Tuple<string, Action<string>>("edit", Edit),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -30,6 +32,7 @@ namespace FileCabinetApp
             new string[] { "stat", "prints statistics on records", "The 'stat' command prints statistics on records." },
             new string[] { "create", "creates new record", "The 'create' command creates new record." },
             new string[] { "list", "prints current list of records.", "The 'list' command prints current list of records." },
+            new string[] { "edit", "allow to edit record.", "The 'list' command edits record." },
         };
 
         public static void Main(string[] args)
@@ -116,9 +119,9 @@ namespace FileCabinetApp
         {
             Console.WriteLine("<< Insert data >>");
             Console.Write("First name: ");
-            string? firstName = Console.ReadLine();
+            string firstName = Console.ReadLine() ?? string.Empty;
             Console.Write("Last name: ");
-            string? lastName = Console.ReadLine();
+            string lastName = Console.ReadLine() ?? string.Empty;
             Console.Write("Date of birth (MM/DD/YYYY): ");
             bool isValidDate = DateTime.TryParse(Console.ReadLine(), CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
             Console.Write("Access level: ");
@@ -128,7 +131,7 @@ namespace FileCabinetApp
             Console.Write("Sex: ");
             bool isValidSex = char.TryParse(Console.ReadLine(), out char sex);
 
-            if (firstName == null || lastName == null || !(isValidDate && isValidLevel && isValidSalary && isValidSex))
+            if (!(isValidDate && isValidLevel && isValidSalary && isValidSex))
             {
                 Console.WriteLine("\tInvalid data!\nInsert command 'create' again.");
                 return;
@@ -152,6 +155,39 @@ namespace FileCabinetApp
                 string date = record.DateOfBirth.ToString("yyyy-MMM-dd", CultureInfo.InvariantCulture);
                 Console.WriteLine("#{0}, {1}, {2}, {5}, {3}, Level {4}, Salary {6}$", record.Id, record.FirstName, record.LastName, date, record.AccessLevel, record.Sex, record.Salary);
             }
+        }
+
+        private static void Edit(string parameters)
+        {
+            Console.Write("> edit ");
+            string stringId = Console.ReadLine() ?? string.Empty;
+            if (!int.TryParse(stringId, out int id) || id < 1 || id > ListRecords.GetStat())
+            {
+                Console.WriteLine($"#{id} record is not found.");
+                return;
+            }
+
+            Console.Write("First name: ");
+            string firstName = Console.ReadLine() ?? string.Empty;
+            Console.Write("Last name: ");
+            string lastName = Console.ReadLine() ?? string.Empty;
+            Console.Write("Date of birth (MM/DD/YYYY): ");
+            bool isValidDate = DateTime.TryParse(Console.ReadLine(), CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
+            Console.Write("Access level: ");
+            bool isValidLevel = short.TryParse(Console.ReadLine(), out short acceessLevel);
+            Console.Write("Salary($): ");
+            bool isValidSalary = decimal.TryParse(Console.ReadLine(), NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal salary);
+            Console.Write("Sex: ");
+            bool isValidSex = char.TryParse(Console.ReadLine(), out char sex);
+
+            if (!(isValidDate && isValidLevel && isValidSalary && isValidSex))
+            {
+                Console.WriteLine("\tInvalid data!\nInsert command 'edit' again.");
+                return;
+            }
+
+            ListRecords.EditRecord(id, firstName, lastName, dateOfBirth, acceessLevel, salary, sex);
+            Console.WriteLine($"Record #{id} is updated.");
         }
     }
 }
