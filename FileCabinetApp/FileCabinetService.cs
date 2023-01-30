@@ -60,6 +60,11 @@ namespace FileCabinetApp
             this.list[id - 1].Sex = sex;
         }
 
+        public FileCabinetRecord[] FindByFirstName(string name)
+        {
+            return this.list.Where(record => string.Equals(record.FirstName, name, StringComparison.OrdinalIgnoreCase)).ToArray();
+        }
+
         private static void IsValidData(string firstName, string lastName, DateTime dateOfBirth, short acceessLevel, decimal salary, char sex)
         {
             if (firstName.Length < 2 || firstName.Length > 60 || firstName == null)

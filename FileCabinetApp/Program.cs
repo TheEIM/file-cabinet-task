@@ -23,6 +23,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("edit", Edit),
+            new Tuple<string, Action<string>>("find", Find),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -159,11 +160,9 @@ namespace FileCabinetApp
 
         private static void Edit(string parameters)
         {
-            Console.Write("> edit ");
-            string stringId = Console.ReadLine() ?? string.Empty;
-            if (!int.TryParse(stringId, out int id) || id < 1 || id > ListRecords.GetStat())
+            if (!int.TryParse(parameters, out int id) || id < 1 || id > ListRecords.GetStat())
             {
-                Console.WriteLine($"#{id} record is not found.");
+                Console.WriteLine($"#{parameters} record is not found.");
                 return;
             }
 
@@ -188,6 +187,23 @@ namespace FileCabinetApp
 
             ListRecords.EditRecord(id, firstName, lastName, dateOfBirth, acceessLevel, salary, sex);
             Console.WriteLine($"Record #{id} is updated.");
+        }
+
+        private static void Find(string parameters)
+        {
+            var inputs = parameters != null ? parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+            inputs[1] = inputs[1].Trim('"');
+            if (!ListRecords.FindByFirstName(inputs[1]).Any())
+            {
+                Console.WriteLine($"There is no records with first name {inputs[1]}.");
+                return;
+            }
+
+            foreach (var record in ListRecords.FindByFirstName(inputs[1]))
+            {
+                string date = record.DateOfBirth.ToString("yyyy-MMM-dd", CultureInfo.InvariantCulture);
+                Console.WriteLine("#{0}, {1}, {2}, {5}, {3}, Level {4}, Salary {6}$", record.Id, record.FirstName, record.LastName, date, record.AccessLevel, record.Sex, record.Salary);
+            }
         }
     }
 }
