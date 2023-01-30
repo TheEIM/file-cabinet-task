@@ -60,9 +60,24 @@ namespace FileCabinetApp
             this.list[id - 1].Sex = sex;
         }
 
-        public FileCabinetRecord[] FindByFirstName(string name)
+        public FileCabinetRecord[] FindByFirstName(string firstname)
         {
-            return this.list.Where(record => string.Equals(record.FirstName, name, StringComparison.OrdinalIgnoreCase)).ToArray();
+            return this.list.Where(record => string.Equals(record.FirstName, firstname, StringComparison.OrdinalIgnoreCase)).ToArray();
+        }
+
+        public FileCabinetRecord[] FindByLastName(string lastname)
+        {
+            return this.list.Where(record => string.Equals(record.LastName, lastname, StringComparison.OrdinalIgnoreCase)).ToArray();
+        }
+
+        public FileCabinetRecord[] FindByDateOfBirth(string dateofbirth)
+        {
+            if (DateTime.TryParse(dateofbirth, out DateTime date))
+            {
+                return this.list.Where(record => date == record.DateOfBirth).ToArray();
+            }
+
+            return Array.Empty<FileCabinetRecord>();
         }
 
         private static void IsValidData(string firstName, string lastName, DateTime dateOfBirth, short acceessLevel, decimal salary, char sex)
