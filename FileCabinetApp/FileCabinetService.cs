@@ -10,6 +10,9 @@ namespace FileCabinetApp
     public class FileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new ();
+        private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short acceessLevel, decimal salary, char sex)
         {
@@ -27,6 +30,32 @@ namespace FileCabinetApp
             };
 
             this.list.Add(record);
+
+            // creating firstname Dictionary
+            firstName = firstName.ToLower(CultureInfo.InvariantCulture);
+            if (!this.firstNameDictionary.ContainsKey(firstName))
+            {
+                this.firstNameDictionary.Add(firstName, new List<FileCabinetRecord>());
+            }
+
+            this.firstNameDictionary[firstName].Add(record);
+
+            // creating lastname Dictionary
+            lastName = lastName.ToLower(CultureInfo.InvariantCulture);
+            if (!this.lastNameDictionary.ContainsKey(lastName))
+            {
+                this.lastNameDictionary.Add(lastName, new List<FileCabinetRecord>());
+            }
+
+            this.lastNameDictionary[lastName].Add(record);
+
+            // creating dateofbirth Dictionary
+            if (!this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
+            {
+                this.dateOfBirthDictionary.Add(dateOfBirth, new List<FileCabinetRecord>());
+            }
+
+            this.dateOfBirthDictionary[dateOfBirth].Add(record);
 
             return record.Id;
         }
@@ -58,6 +87,69 @@ namespace FileCabinetApp
             this.list[id - 1].AccessLevel = acceessLevel;
             this.list[id - 1].Salary = salary;
             this.list[id - 1].Sex = sex;
+
+            // editing firstname Dictionary
+            firstName = firstName.ToLower(CultureInfo.InvariantCulture);
+            if (!this.firstNameDictionary.ContainsKey(firstName))
+            {
+                this.firstNameDictionary.Add(firstName, new List<FileCabinetRecord>());
+            }
+            else if (this.firstNameDictionary.Remove(firstName, out List<FileCabinetRecord>? value))
+            {
+                value = value.Where(item => item.Id != id).ToList();
+                this.firstNameDictionary.Add(firstName, value);
+            }
+
+            this.firstNameDictionary[firstName].Add(this.list[id - 1]);
+
+            // editing lastname Dictionary
+            lastName = lastName.ToLower(CultureInfo.InvariantCulture);
+            if (!this.lastNameDictionary.ContainsKey(lastName))
+            {
+                this.lastNameDictionary.Add(lastName, new List<FileCabinetRecord>());
+            }
+            else if (this.lastNameDictionary.Remove(lastName, out List<FileCabinetRecord>? value))
+            {
+                value = value.Where(item => item.Id != id).ToList();
+                this.lastNameDictionary.Add(lastName, value);
+            }
+
+            this.lastNameDictionary[lastName].Add(this.list[id - 1]);
+
+            // editing dateofbirth Dictionary
+            if (!this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
+            {
+                this.dateOfBirthDictionary.Add(dateOfBirth, new List<FileCabinetRecord>());
+            }
+            else if (this.dateOfBirthDictionary.Remove(dateOfBirth, out List<FileCabinetRecord>? value))
+            {
+                value = value.Where(item => item.Id != id).ToList();
+                this.dateOfBirthDictionary.Add(dateOfBirth, value);
+            }
+
+            this.dateOfBirthDictionary[dateOfBirth].Add(this.list[id - 1]);
+        }
+
+        public FileCabinetRecord[] FindByFirstName(string firstname)
+        {
+            firstname = firstname.ToLower(CultureInfo.InvariantCulture);
+            return this.firstNameDictionary[firstname].ToArray();
+        }
+
+        public FileCabinetRecord[] FindByLastName(string lastname)
+        {
+            lastname = lastname.ToLower(CultureInfo.InvariantCulture);
+            return this.lastNameDictionary[lastname].ToArray();
+        }
+
+        public FileCabinetRecord[] FindByDateOfBirth(string dateofbirth)
+        {
+            if (DateTime.TryParse(dateofbirth, out DateTime date))
+            {
+                return this.dateOfBirthDictionary[date].ToArray();
+            }
+
+            return Array.Empty<FileCabinetRecord>();
         }
 
         private static void IsValidData(string firstName, string lastName, DateTime dateOfBirth, short acceessLevel, decimal salary, char sex)

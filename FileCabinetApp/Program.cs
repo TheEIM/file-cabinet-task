@@ -23,6 +23,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("edit", Edit),
+            new Tuple<string, Action<string>>("find", Find),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -33,6 +34,7 @@ namespace FileCabinetApp
             new string[] { "create", "creates new record", "The 'create' command creates new record." },
             new string[] { "list", "prints current list of records.", "The 'list' command prints current list of records." },
             new string[] { "edit", "allow to edit record.", "The 'list' command edits record." },
+            new string[] { "find", "allow to find records.", "The 'list' command prints records with specified field and name." },
         };
 
         public static void Main(string[] args)
@@ -159,11 +161,9 @@ namespace FileCabinetApp
 
         private static void Edit(string parameters)
         {
-            Console.Write("> edit ");
-            string stringId = Console.ReadLine() ?? string.Empty;
-            if (!int.TryParse(stringId, out int id) || id < 1 || id > ListRecords.GetStat())
+            if (!int.TryParse(parameters, out int id) || id < 1 || id > ListRecords.GetStat())
             {
-                Console.WriteLine($"#{id} record is not found.");
+                Console.WriteLine($"#{parameters} record is not found.");
                 return;
             }
 
@@ -188,6 +188,33 @@ namespace FileCabinetApp
 
             ListRecords.EditRecord(id, firstName, lastName, dateOfBirth, acceessLevel, salary, sex);
             Console.WriteLine($"Record #{id} is updated.");
+        }
+
+        private static void Find(string parameters)
+        {
+            string[] fields = { "firstname", "lastname", "dateofbirth" };
+            var inputs = parameters != null ? parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+            inputs[1] = inputs[1].Trim('"');
+            inputs[0] = inputs[0].ToLower(CultureInfo.InvariantCulture);
+            int index = Array.IndexOf(fields, inputs[0]);
+            FileCabinetRecord[] records = index switch
+            {
+                0 => ListRecords.FindByFirstName(inputs[1]),
+                1 => ListRecords.FindByLastName(inputs[1]),
+                2 => ListRecords.FindByDateOfBirth(inputs[1]),
+                _ => Array.Empty<FileCabinetRecord>()
+            };
+
+            if (records.Length == 0)
+            {
+                Console.WriteLine("No record with this field or field_name");
+            }
+
+            foreach (var record in records)
+            {
+                string date = record.DateOfBirth.ToString("yyyy-MMM-dd", CultureInfo.InvariantCulture);
+                Console.WriteLine("#{0}, {1}, {2}, {5}, {3}, Level {4}, Salary {6}$", record.Id, record.FirstName, record.LastName, date, record.AccessLevel, record.Sex, record.Salary);
+            }
         }
     }
 }
