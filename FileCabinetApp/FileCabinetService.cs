@@ -12,6 +12,7 @@ namespace FileCabinetApp
         private readonly List<FileCabinetRecord> list = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short acceessLevel, decimal salary, char sex)
         {
@@ -47,6 +48,15 @@ namespace FileCabinetApp
             }
 
             this.lastNameDictionary[lastName].Add(record);
+
+            // creating dateofbirth Dictionary
+            if (!this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
+            {
+                this.dateOfBirthDictionary.Add(dateOfBirth, new List<FileCabinetRecord>());
+            }
+
+            this.dateOfBirthDictionary[dateOfBirth].Add(record);
+
             return record.Id;
         }
 
@@ -105,6 +115,19 @@ namespace FileCabinetApp
             }
 
             this.lastNameDictionary[lastName].Add(this.list[id - 1]);
+
+            // editing dateofbirth Dictionary
+            if (!this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
+            {
+                this.dateOfBirthDictionary.Add(dateOfBirth, new List<FileCabinetRecord>());
+            }
+            else if (this.dateOfBirthDictionary.Remove(dateOfBirth, out List<FileCabinetRecord>? value))
+            {
+                value = value.Where(item => item.Id != id).ToList();
+                this.dateOfBirthDictionary.Add(dateOfBirth, value);
+            }
+
+            this.dateOfBirthDictionary[dateOfBirth].Add(this.list[id - 1]);
         }
 
         public FileCabinetRecord[] FindByFirstName(string firstname)
@@ -123,7 +146,7 @@ namespace FileCabinetApp
         {
             if (DateTime.TryParse(dateofbirth, out DateTime date))
             {
-                return this.list.Where(record => date == record.DateOfBirth).ToArray();
+                return this.dateOfBirthDictionary[date].ToArray();
             }
 
             return Array.Empty<FileCabinetRecord>();
